@@ -6,13 +6,20 @@
 #include "ConicalTargetingSystemComponent.generated.h"
 
 /**
- * 
+ *
  */
 UCLASS()
 class TARGETINGSYSTEMS_API UConicalTargetingSystemComponent : public UTargetingSystemComponent
 {
 	GENERATED_BODY()
-	
 
-	
+public:
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		float RadiusAtStart;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		float RadiusAtEnd;
+
+	virtual void SetCurrentTarget() override;
 };

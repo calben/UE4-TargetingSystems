@@ -37,6 +37,14 @@ void UTargetingSystemComponent::TickComponent( float DeltaTime, ELevelTick TickT
 
 void UTargetingSystemComponent::SetCurrentTarget()
 {
+	//if (CurrentTarget)
+	//{
+	//	UActorComponent* Light = CurrentTarget->FindComponentByClass(UPointLightComponent::StaticClass());
+	//	if (Light)
+	//	{
+	//		Light->DestroyComponent();
+	//	}
+	//}
 	FHitResult f(ForceInit);
 	FVector start = this->GetComponentLocation();
 	FVector direction = this->GetForwardVector();
@@ -46,5 +54,7 @@ void UTargetingSystemComponent::SetCurrentTarget()
 	FVector end = start + (direction * 2000.0f);
 	GetWorld()->LineTraceSingleByChannel(f, start, end, ECC_Visibility, params);
 	// GetWorld()->DebugDrawTraceTag = "TargetingTrace";
-	this->CurrentTarget = f.GetActor();
+	CurrentTarget = f.GetActor();
+	//UPointLightComponent* PointLight = NewObject<UPointLightComponent>(CurrentTarget, TEXT("ActiveTargetIndicatorLight"));
+	//PointLight->RegisterComponent();
 }
