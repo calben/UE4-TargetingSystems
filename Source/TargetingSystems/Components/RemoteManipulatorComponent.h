@@ -7,10 +7,10 @@
 
 
 UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
+
 class TARGETINGSYSTEMS_API URemoteManipulatorComponent : public USceneComponent
 {
 	GENERATED_BODY()
-
 public:
 	// Sets default values for this component's properties
 	URemoteManipulatorComponent();
@@ -22,65 +22,86 @@ public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-		bool bIsManipulating;
+	bool bIsManipulating;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-		bool bMovedTargetAboutManipulatorRotation;
+	bool bMovedTargetAboutManipulatorRotation;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-		bool bIncreaseDampingOnCurrentTarget;
+	bool bIncreaseDampingOnCurrentTarget;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-		float LinearDampingAmount = 2.f;
+	bool bUseDeadzone = true;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-		float AngularDampingAmount = 2.f;
+	bool bEnforceMaximumForceMultiplierDistance = true;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-		float BaseImpulseScale = 1000;
+	float LinearDampingAmount = 0.2f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-		float BaseForceScale = 1000;
+	float AngularDampingAmount = 0.5f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float BaseImpulseScale = 1000;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float BaseForceScale = 1000;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float MaximumForceMultiplierDistance = 50.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float DeadzoneSize = 5.f;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-		class AActor* CurrentTarget;
+	class AActor* CurrentTarget;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-		class UPrimitiveComponent* CurrentTargetPrimitiveRoot;
+	class UPrimitiveComponent* CurrentTargetPrimitiveRoot;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	class TSubclassOf<AActor> RelativePositionManipulatorIndicatorActorClass;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	AActor* RelativePositionManipulatorIndicatorActor;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-		FVector RelativePositionManipulatorVector;
+	FVector RelativePositionManipulatorVector;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-		bool bIsManipulatingByRelativePosition = false;
+	bool bIsManipulatingByRelativePosition = false;
 
 	UFUNCTION(BlueprintCallable, Category = Manipulating)
-		void AddImpulseToTargetAlongForwardVector(float ImpulseAmount);
+	FVector CalculateForceVectorByRestrictedRelativePosition();
 
 	UFUNCTION(BlueprintCallable, Category = Manipulating)
-		void AddImpulseToTargetTowardWorldLocation(FVector Location, float ImpulseAmount);
+	void AddImpulseToTargetAlongForwardVector(float ImpulseAmount);
 
 	UFUNCTION(BlueprintCallable, Category = Manipulating)
-		void AddForceToTargetAlongForwardVector(float ForceScale);
+	void AddImpulseToTargetTowardWorldLocation(FVector Location, float ImpulseAmount);
 
 	UFUNCTION(BlueprintCallable, Category = Manipulating)
-		void AddForceToTargetTowardWorldLocation(FVector Location, float ForceScale);
+	void AddForceToTargetAlongForwardVector(float ForceScale);
 
 	UFUNCTION(BlueprintCallable, Category = Manipulating)
-		void ToggleCurrentTargetGravity();
+	void AddForceToTargetTowardWorldLocation(FVector Location, float ForceScale);
 
 	UFUNCTION(BlueprintCallable, Category = Manipulating)
-		void DampenTargetForces(float DampeningAmount);
+	void ToggleCurrentTargetGravity();
 
 	UFUNCTION(BlueprintCallable, Category = Manipulating)
-		void StartManipulatingByRelativePosition();
+	void DampenTargetForces(float DampeningAmount);
 
 	UFUNCTION(BlueprintCallable, Category = Manipulating)
-		void StopManipulatingByRelativePosition();
+	void StartManipulatingByRelativePosition();
 
 	UFUNCTION(BlueprintCallable, Category = Manipulating)
-		void SetCurrentTarget(class AActor* NewTarget);
+	void StopManipulatingByRelativePosition();
 
 	UFUNCTION(BlueprintCallable, Category = Manipulating)
-		void JerkCurrentTarget(float ImpulseMultiplier, float TorqueMultiplier);
+	void SetCurrentTarget(class AActor* NewTarget);
+
+	UFUNCTION(BlueprintCallable, Category = Manipulating)
+	void JerkCurrentTarget(float ImpulseMultiplier, float TorqueMultiplier);
 };

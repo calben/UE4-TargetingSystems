@@ -1,7 +1,6 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "TargetingSystems.h"
-#include "Actors/Marker.h"
 #include "MarkerSystemComponent.h"
 
 
@@ -22,14 +21,14 @@ void UMarkerSystemComponent::BeginPlay()
 	Super::BeginPlay();
 
 	// ...
-	
+
 }
 
 
 // Called every frame
-void UMarkerSystemComponent::TickComponent( float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction )
+void UMarkerSystemComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
-	Super::TickComponent( DeltaTime, TickType, ThisTickFunction );
+	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
 	// ...
 }
@@ -38,13 +37,12 @@ void UMarkerSystemComponent::DeployMarker(FVector WorldLocation, FRotator WorldR
 {
 	if (!bMultipleMarkerMode)
 	{
-		for(AActor* actor : DeployedMarkers)
+		for (AActor* actor : DeployedMarkers)
 		{
 			actor->Destroy();
 		}
 		DeployedMarkers.Empty();
 	}
-	AMarker* NewMarker = GetWorld()->SpawnActor<AMarker>(WorldLocation, WorldRotation);
+	AActor* NewMarker = GetWorld()->SpawnActor<AActor>(MarkerClass, WorldLocation, WorldRotation);
 	this->DeployedMarkers.Add(NewMarker);
 }
-

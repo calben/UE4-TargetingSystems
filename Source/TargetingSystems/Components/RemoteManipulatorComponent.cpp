@@ -28,12 +28,33 @@ void URemoteManipulatorComponent::TickComponent(float DeltaTime, ELevelTick Tick
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 	if (bIsManipulatingByRelativePosition)
 	{
-		const FVector Delta = this->GetComponentLocation() - RelativePositionManipulatorVector;
+		const FVector ForceVector = CalculateForceVectorByRestrictedRelativePosition();
 		if (CurrentTargetPrimitiveRoot)
 		{
-			CurrentTargetPrimitiveRoot->AddForce(Delta * BaseForceScale);
+			// GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("APPLYING FORCE: %s"), *ForceVector.ToString()));
+			CurrentTargetPrimitiveRoot->AddForce(ForceVector * BaseForceScale);
 		}
 	}
+}
+
+FVector URemoteManipulatorComponent::CalculateForceVectorByRestrictedRelativePosition()
+{
+	FVector Delta = this->GetComponentLocation() - RelativePositionManipulatorVector;
+	if (bUseDeadzone)
+	{
+		if (Delta.Size() <= DeadzoneSize)
+		{
+			return FVector::ZeroVector;
+		}
+	}
+	if (bEnforceMaximumForceMultiplierDistance)
+	{
+		if (Delta.Size() >= MaximumForceMultiplierDistance)
+		{
+			return Delta.GetSafeNormal() * MaximumForceMultiplierDistance;
+		}
+	}
+	return Delta;
 }
 
 void URemoteManipulatorComponent::AddImpulseToTargetAlongForwardVector(float ImpulseAmount)
@@ -96,16 +117,31 @@ void URemoteManipulatorComponent::DampenTargetForces(float DampeningAmount)
 
 void URemoteManipulatorComponent::StartManipulatingByRelativePosition()
 {
-	bIsManipulatingByRelativePosition = true;
-	RelativePositionManipulatorVector = GetComponentLocation();
-	// TODO
-	// spawn indicator actor
-	// could be a good time for a marker :-)
+	if (CurrentTargetPrimitiveRoot)
+	{
+		if (RelativePositionManipulatorIndicatorActorClass)
+		{
+			bIsManipulatingByRelativePosition = true;
+			RelativePositionManipulatorVector = GetComponentLocation();
+			RelativePositionManipulatorIndicatorActor = GetWorld()->SpawnActor<AActor>(RelativePositionManipulatorIndicatorActorClass, this->GetComponentLocation(), this->GetComponentRotation());
+		}
+		else
+		{
+			UE_LOG(LogTemp, Warning, TEXT("FAILED TO SET RelativePositionManipulatorIndicatorActorClass"));
+		}
+		// TODO
+		// spawn indicator actor
+		// could be a good time for a marker :-)
+	}
 }
 
 void URemoteManipulatorComponent::StopManipulatingByRelativePosition()
 {
-	bIsManipulatingByRelativePosition = false;
+	if (bIsManipulatingByRelativePosition)
+	{
+		RelativePositionManipulatorIndicatorActor->Destroy();
+		bIsManipulatingByRelativePosition = false;
+	}
 }
 
 void URemoteManipulatorComponent::SetCurrentTarget(AActor* NewTarget)
@@ -140,4 +176,3 @@ void URemoteManipulatorComponent::JerkCurrentTarget(float ImpulseMultiplier, flo
 	CurrentTargetPrimitiveRoot->AddImpulse(UKismetMathLibrary::RandomUnitVector() * ImpulseMultiplier);
 	CurrentTargetPrimitiveRoot->AddTorque(UKismetMathLibrary::RandomUnitVector() * TorqueMultiplier);
 }
-

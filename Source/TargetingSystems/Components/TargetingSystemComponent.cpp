@@ -21,16 +21,23 @@ void UTargetingSystemComponent::BeginPlay()
 	Super::BeginPlay();
 
 	// ...
-	
+
 }
 
 
 // Called every frame
-void UTargetingSystemComponent::TickComponent( float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction )
+void UTargetingSystemComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
-	Super::TickComponent( DeltaTime, TickType, ThisTickFunction );
+	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 	if (this->bIsTargeting)
+	{
+		PreviousTarget = CurrentTarget;
 		SetCurrentTarget();
+		if (PreviousTarget != CurrentTarget)
+		{
+			OnTargetChanged();
+		}
+	}
 	// ...
 }
 
@@ -50,11 +57,38 @@ void UTargetingSystemComponent::SetCurrentTarget()
 	FVector direction = this->GetForwardVector();
 	FCollisionQueryParams  params = FCollisionQueryParams(FName(TEXT("TargetingTrace")), true, NULL);
 	params.bTraceAsyncScene = true;
-	start = start + (direction * 100.0f);
+	start = start + (direction * 10.0f);
 	FVector end = start + (direction * 2000.0f);
 	GetWorld()->LineTraceSingleByChannel(f, start, end, ECC_Visibility, params);
-	// GetWorld()->DebugDrawTraceTag = "TargetingTrace";
+	if (bDrawDebug)
+	{
+		GetWorld()->DebugDrawTraceTag = "TargetingTrace";
+	}
 	CurrentTarget = f.GetActor();
-	//UPointLightComponent* PointLight = NewObject<UPointLightComponent>(CurrentTarget, TEXT("ActiveTargetIndicatorLight"));
-	//PointLight->RegisterComponent();
+}
+
+void UTargetingSystemComponent::OnTargetChanged()
+{
+	UpdateHighlighting();
+}
+
+void UTargetingSystemComponent::UpdateHighlighting()
+{
+	// GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("UPDATING HIGHLIGHTING")));
+	if (PreviousTarget)
+	{
+		UPrimitiveComponent* preprim = PreviousTarget->GetRootPrimitiveComponent();
+		if (preprim)
+		{
+			preprim->SetRenderCustomDepth(false);
+		}
+	}
+	if (CurrentTarget)
+	{
+		UPrimitiveComponent* currprim = CurrentTarget->GetRootPrimitiveComponent();
+		if (currprim)
+		{
+			currprim->SetRenderCustomDepth(true);
+		}
+	}
 }

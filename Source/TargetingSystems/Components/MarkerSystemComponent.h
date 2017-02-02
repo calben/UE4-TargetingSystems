@@ -11,24 +11,24 @@ class TARGETINGSYSTEMS_API UMarkerSystemComponent : public USceneComponent
 {
 	GENERATED_BODY()
 
-public:	
+public:
 	// Sets default values for this component's properties
 	UMarkerSystemComponent();
 
 	// Called when the game starts
 	virtual void BeginPlay() override;
-	
+
 	// Called every frame
-	virtual void TickComponent( float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction ) override;
+	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		bool bMultipleMarkerMode = false;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-		class TSubclassOf<class AMarker> MarkerClass;
-	
+		class TSubclassOf<class AActor> MarkerClass;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-		TArray<class AMarker*> DeployedMarkers;
+		TArray<class AActor*> DeployedMarkers;
 
 	UFUNCTION(BlueprintCallable, Category = Markers)
 		void DeployMarker(FVector WorldLocation, FRotator WorldRotation);
